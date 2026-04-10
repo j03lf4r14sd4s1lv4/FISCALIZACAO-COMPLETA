@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiscalização de EPI</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Fiscalização de Equipamentos de Proteção Individual (EPI)</h1>
+        <table id="checklist">
+            <thead>
+                <tr>
+                    <th>EPI</th>
+                    <th>Verificado</th>
+                    <th>Observações</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Capacete</td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="text" placeholder="Observações"></td>
+                </tr>
+                <tr>
+                    <td>Óculos de Segurança</td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="text" placeholder="Observações"></td>
+                </tr>
+                <tr>
+                    <td>Protetor Auricular</td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="text" placeholder="Observações"></td>
+                </tr>
+                <tr>
+                    <td>Luvas</td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="text" placeholder="Observações"></td>
+                </tr>
+                <tr>
+                    <td>Bota de Segurança</td>
+                    <td><input type="checkbox"></td>
+                    <td><input type="text" placeholder="Observações"></td>
+                </tr>
+            </tbody>
+        </table>
+        <div>
+            <h2>Fotos</h2>
+            <input type="file" id="fileInput" multiple>
+            <div id="photoPreview"></div>
+        </div>
+        <div>
+            <h2>Assinatura</h2>
+            <canvas id="signatureCanvas" width="400" height="200" style="border: 1px solid black;"></canvas>
+            <button id="clearCanvas">Limpar</button>
+            <button id="saveSignature">Salvar Assinatura</button>
+        </div>
+        <button id="generatePDF">Gerar PDF</button>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
