@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ficha Fiscal - SilverNet Tecnologia</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Ficha Fiscal</h1>
+        <p>Desenvolvido por SilverNet Tecnologia</p>
+    </header>
+    <main>
+        <section>
+            <h2>Informações do Contribuinte</h2>
+            <label for="name">Nome:</label>
+            <input type="text" id="name" name="name">
+
+            <label for="cpf">CPF:</label>
+            <input type="text" id="cpf" name="cpf">
+
+            <label for="address">Endereço:</label>
+            <input type="text" id="address" name="address">
+        </section>
+
+        <section>
+            <h2>Dados do Documento</h2>
+            <label for="docType">Tipo de Documento:</label>
+            <select id="docType" name="docType">
+                <option value="nota">Nota Fiscal</option>
+                <option value="recibo">Recibo</option>
+            </select>
+
+            <label for="docNumber">Número do Documento:</label>
+            <input type="text" id="docNumber" name="docNumber">
+        </section>
+
+        <section>
+            <h2>Valor</h2>
+            <label for="amount">Valor Total:</label>
+            <input type="text" id="amount" name="amount">
+        </section>
+
+        <footer>
+            <button type="submit">Enviar</button>
+        </footer>
+    </main>
+</body>
+</html>
