@@ -1,64 +1,738 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fiscalização de EPI</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root{--red:#E50012;--red-dark:#8C000B;--red-glow:rgba(229,0,18,0.13);--bg:#030303;--s1:#0A0A0A;--s2:#111;--s3:#181818;--border:#202020;--border2:#2C2C2C;--text:#ECECEC;--dim:#666;--muted:#333;--mono:'Roboto Mono',monospace;--display:'Barlow Condensed',sans-serif;--body:'Barlow',sans-serif;--radius:10px}
+,::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-family:Arial,sans-serif;background:#030303;color:#ECECEC}
+body{background:#030303;color:#ECECEC;min-height:100vh;padding:16px 14px 40px;font-family:Arial,sans-serif}
+.container{max-width:820px;margin:auto}
+.section{background:#0A0A0A;border:1px solid #202020;border-radius:10px;margin-bottom:12px;overflow:hidden}
+.sec-head{display:flex;align-items:center;gap:10px;padding:12px 16px;background:#111;border-bottom:1px solid #202020}
+.sec-icon{color:#E50012;font-size:14px}
+.sec-label{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+.sec-num{margin-left:auto;font-size:10px;color:#444;font-family:monospace}
+.sec-body{padding:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:9px;color:#E50012;letter-spacing:2px;text-transform:uppercase;font-family:monospace}
+.field input,.field textarea,.field select{background:#030303;border:1px solid #2C2C2C;border-radius:6px;padding:10px 12px;color:#ECECEC;font-size:13px;outline:none;width:100%;transition:border-color .2s,box-shadow .2s;font-family:Arial,sans-serif}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:#E50012;box-shadow:0 0 0 3px rgba(229,0,18,0.13)}
+.field textarea{resize:vertical;min-height:80px;line-height:1.5}
+.field select option{background:#111;color:#ECECEC}
+.header-stripe{height:4px;background:repeating-linear-gradient(90deg,#E50012 0,#E50012 18px,transparent 18px,transparent 24px)}
+.header-inner{display:grid;grid-template-columns:54px 1fr auto;align-items:center;gap:14px;padding:16px 20px}
+.header-icon{width:54px;height:54px;background:#E50012;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;flex-shrink:0}
+.header-title h1{font-size:22px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+.header-title p{font-size:9px;color:#666;margin-top:4px;letter-spacing:2px;text-transform:uppercase;font-family:monospace}
+.badge{display:inline-flex;align-items:center;gap:4px;background:rgba(229,0,18,0.13);border:1px solid #8C000B;border-radius:4px;padding:3px 8px;font-size:9px;color:#FF6070;letter-spacing:1px;font-family:monospace}
+.geo-bar{display:flex;align-items:center;gap:8px;background:#111;border-bottom:1px solid #202020;padding:7px 20px;font-size:10px;color:#666;font-family:monospace}
+.geo-dot{width:7px;height:7px;border-radius:50%;background:#666;flex-shrink:0;transition:background .3s}
+.geo-dot.ok{background:#22c55e;box-shadow:0 0 5px #22c55e80}
+.geo-dot.err{background:#E50012}
+.geo-dot.pulse{background:#f59e0b;animation:gpulse 1.2s infinite}
+@keyframes gpulse{0%,100%{opacity:1}50%{opacity:.3}}
+.geo-btn{margin-left:auto;background:#E50012;color:#fff;border:none;border-radius:5px;padding:4px 10px;font-size:9px;letter-spacing:1px;cursor:pointer;text-transform:uppercase;font-family:monospace}
+.ck-table{width:100%;border-collapse:collapse}
+.ck-table th{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#333;padding:9px 12px;text-align:left;border-bottom:1px solid #202020;font-family:monospace}
+.ck-table th:last-child{text-align:right}
+.ck-table td{padding:9px 12px;border-bottom:1px solid #202020;font-size:12px;vertical-align:middle}
+.ck-table tr:last-child td{border-bottom:none}
+.ck-table td:first-child{font-family:monospace;font-size:9px;color:#444;width:28px}
+.ck-table tr.r-ok td{background:rgba(34,197,94,0.04)}
+.ck-table tr.r-no td{background:rgba(229,0,18,0.04)}
+.btn-group{display:flex;gap:3px;justify-content:flex-end}
+.status-btn{font-size:9px;padding:4px 9px;border-radius:20px;cursor:pointer;border:1px solid #2C2C2C;background:transparent;color:#666;transition:all .15s;font-family:monospace}
+.status-btn:hover{border-color:#555;color:#ECECEC}
+.s-ok{background:rgba(34,197,94,0.12);color:#4ade80;border-color:rgba(34,197,94,0.3)}
+.s-no{background:rgba(229,0,18,0.12);color:#f87171;border-color:rgba(229,0,18,0.3)}
+.s-na{background:rgba(120,120,120,0.12);color:#888;border-color:#333}
+.score-wrap{border-top:1px solid #202020;background:#111;padding:9px 16px;display:flex;align-items:center;gap:10px}
+.score-label{font-size:9px;color:#666;letter-spacing:1px;white-space:nowrap;font-family:monospace}
+.score-track{flex:1;height:3px;background:#202020;border-radius:2px;overflow:hidden}
+.score-fill{height:100%;background:#E50012;transition:width .4s ease,background .4s;width:0%;border-radius:2px}
+.score-val{font-size:12px;font-weight:600;color:#E50012;min-width:32px;text-align:right;font-family:monospace}
+.pills{display:none;gap:6px;flex-wrap:wrap;padding:7px 16px;background:#111;border-top:1px solid #202020}
+.pill{font-size:9px;padding:3px 10px;border-radius:20px;letter-spacing:.5px;font-family:monospace}
+.p-ok{background:rgba(34,197,94,0.1);color:#4ade80;border:1px solid rgba(34,197,94,.25)}
+.p-no{background:rgba(229,0,18,0.1);color:#f87171;border:1px solid rgba(229,0,18,.25)}
+.p-na{background:rgba(120,120,120,0.1);color:#888;border:1px solid #333}
+.char-c{text-align:right;font-size:9px;color:#444;margin-top:-6px;font-family:monospace}
+.cam-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.act-btn{display:flex;align-items:center;justify-content:center;gap:8px;background:#111;color:#666;border:1px dashed #2C2C2C;padding:13px;border-radius:8px;cursor:pointer;font-size:12px;transition:all .2s;font-family:Arial,sans-serif}
+.act-btn:hover{border-color:#E50012;color:#ECECEC;background:rgba(229,0,18,0.08)}
+.photo-meta{font-size:10px;color:#666;margin-bottom:10px;font-family:monospace}
+.photo-meta span{color:#ccc}
+#preview{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:4px}
+.foto-box{position:relative}
+.foto-box img{width:100%;height:100px;object-fit:cover;border-radius:6px;border:1px solid #2C2C2C;cursor:pointer;display:block;transition:opacity .2s,border-color .2s}
+.foto-box img:hover{opacity:.82;border-color:#E50012}
+.foto-label{position:absolute;bottom:4px;left:4px;background:rgba(3,3,3,.78);font-size:9px;color:#aaa;padding:2px 5px;border-radius:3px;font-family:monospace}
+.foto-geo{position:absolute;bottom:4px;right:4px;background:rgba(3,3,3,.78);font-size:8px;color:#22c55e;padding:2px 4px;border-radius:3px;font-family:monospace}
+.btn-del{position:absolute;top:4px;right:4px;background:rgba(229,0,18,.85);color:#fff;border:none;border-radius:50%;width:18px;height:18px;cursor:pointer;font-size:9px;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s}
+.foto-box:hover .btn-del{opacity:1}
+.main-btn{width:100%;background:#E50012;color:#fff;padding:16px;border:none;border-radius:8px;font-size:17px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s;font-family:Arial,sans-serif}
+.main-btn:hover{background:#C0000F;box-shadow:0 6px 20px rgba(229,0,18,.35);transform:translateY(-1px)}
+.main-btn:active{transform:scale(.99)}
+.toast{position:fixed;bottom:22px;right:18px;background:#0A0A0A;border:1px solid #2C2C2C;border-left:3px solid #E50012;padding:9px 14px;border-radius:8px;font-size:12px;color:#ECECEC;opacity:0;transform:translateY(8px);transition:all .25s;z-index:999;max-width:280px;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+#visualizador{position:fixed;inset:0;background:rgba(0,0,0,.97);display:none;align-items:center;justify-content:center;z-index:9999}
+#visualizador.open{display:flex}
+#visualizador img{max-width:90%;max-height:90%;border-radius:8px;border:1px solid #2C2C2C}
+#fecharVis{position:absolute;top:18px;right:22px;font-size:24px;cursor:pointer;color:#666;transition:color .2s;background:none;border:none;color:#ECECEC}
+#fecharVis:hover{color:#E50012}
+.epi-severity{display:inline-block;padding:2px 8px;border-radius:4px;font-size:9px;font-family:monospace;font-weight:700;letter-spacing:1px}
+.sev-alto{background:rgba(229,0,18,.15);color:#f87171;border:1px solid rgba(229,0,18,.3)}
+.sev-med{background:rgba(245,158,11,.12);color:#fbbf24;border:1px solid rgba(245,158,11,.25)}
+.sev-low{background:rgba(34,197,94,.1);color:#4ade80;border:1px solid rgba(34,197,94,.2)}
+.infraction-bar{background:rgba(229,0,18,.06);border:1px solid rgba(229,0,18,.15);border-radius:6px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.inf-count{font-size:22px;font-weight:700;color:#f87171;font-family:monospace;min-width:32px}
+.inf-label{font-size:11px;color:#888}
+.inf-label strong{color:#ECECEC;display:block;font-size:13px}
+@media(max-width:560px){.grid2{grid-template-columns:1fr}.cam-btns{grid-template-columns:1fr}.header-inner{grid-template-columns:44px 1fr}.header-meta{display:none}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>Fiscalização de Equipamentos de Proteção Individual (EPI)</h1>
-        <table id="checklist">
-            <thead>
-                <tr>
-                    <th>EPI</th>
-                    <th>Verificado</th>
-                    <th>Observações</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Capacete</td>
-                    <td><input type="checkbox"></td>
-                    <td><input type="text" placeholder="Observações"></td>
-                </tr>
-                <tr>
-                    <td>Óculos de Segurança</td>
-                    <td><input type="checkbox"></td>
-                    <td><input type="text" placeholder="Observações"></td>
-                </tr>
-                <tr>
-                    <td>Protetor Auricular</td>
-                    <td><input type="checkbox"></td>
-                    <td><input type="text" placeholder="Observações"></td>
-                </tr>
-                <tr>
-                    <td>Luvas</td>
-                    <td><input type="checkbox"></td>
-                    <td><input type="text" placeholder="Observações"></td>
-                </tr>
-                <tr>
-                    <td>Bota de Segurança</td>
-                    <td><input type="checkbox"></td>
-                    <td><input type="text" placeholder="Observações"></td>
-                </tr>
-            </tbody>
-        </table>
-        <div>
-            <h2>Fotos</h2>
-            <input type="file" id="fileInput" multiple>
-            <div id="photoPreview"></div>
-        </div>
-        <div>
-            <h2>Assinatura</h2>
-            <canvas id="signatureCanvas" width="400" height="200" style="border: 1px solid black;"></canvas>
-            <button id="clearCanvas">Limpar</button>
-            <button id="saveSignature">Salvar Assinatura</button>
-        </div>
-        <button id="generatePDF">Gerar PDF</button>
+<div class="container">
+
+<div class="section" style="margin-bottom:12px">
+  <div class="header-stripe"></div>
+  <div class="header-inner">
+    <div class="header-icon">🦺</div>
+    <div class="header-title">
+      <h1>Fiscalização de EPI</h1>
+      <p>Registro de Infrações · Documento Digital</p>
     </div>
-    <script src="script.js"></script>
+    <div class="header-meta">
+      <span class="badge">● ATIVO</span>
+    </div>
+  </div>
+  <div class="geo-bar" id="geoBar">
+    <span class="geo-dot" id="geoDot"></span>
+    <span id="geoTxt">Geolocalização não ativada</span>
+    <button class="geo-btn" id="btnAtivargeo" onclick="ativarGeo()">📍 Ativar GPS</button>
+  </div>
+</div>
+
+<!-- 01 DADOS -->
+<div class="section">
+  <div class="sec-head">
+    <span class="sec-icon">🪪</span>
+    <span class="sec-label">Dados da Fiscalização</span>
+    <span class="sec-num">01 / 05</span>
+  </div>
+  <div class="sec-body">
+    <div class="grid2">
+      <div class="field"><label>Nome do Técnico</label><input id="tecnico" placeholder="Ex: Carlos Souza"></div>
+      <div class="field"><label>Matrícula / ID</label><input id="matricula" placeholder="Ex: TEC-0042"></div>
+      <div class="field"><label>Nome do Fiscal</label><input id="fiscal" placeholder="Ex: Ana Lima"></div>
+      <div class="field"><label>Data da Fiscalização</label><input type="date" id="data"></div>
+      <div class="field"><label>Local / Obra</label><input id="local" placeholder="Ex: CTO 042 - Rua das Flores"></div>
+      <div class="field"><label>Tipo de Serviço</label>
+        <select id="tipoServico">
+          <option value="">Selecione...</option>
+          <option>Instalação de fibra óptica</option>
+          <option>Manutenção em CTO</option>
+          <option>Lançamento de cabo</option>
+          <option>Trabalho em altura</option>
+          <option>Escavação / Vala</option>
+          <option>Outro</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 02 CHECKLIST EPI -->
+<div class="section">
+  <div class="sec-head">
+    <span class="sec-icon">✅</span>
+    <span class="sec-label">Checklist de EPI</span>
+    <span class="sec-num">02 / 05</span>
+  </div>
+  <table class="ck-table">
+    <thead>
+      <tr>
+        <th>#</th><th>Equipamento de Proteção</th><th style="text-align:center;width:60px">Risco</th><th style="text-align:right">Status</th>
+      </tr>
+    </thead>
+    <tbody id="tabela"></tbody>
+  </table>
+  <div class="pills" id="pills">
+    <span class="pill p-ok" id="pOk"></span>
+    <span class="pill p-no" id="pNo"></span>
+    <span class="pill p-na" id="pNa"></span>
+  </div>
+  <div class="score-wrap">
+    <span class="score-label">CONFORMIDADE</span>
+    <div class="score-track"><div class="score-fill" id="sFill"></div></div>
+    <span class="score-val" id="sVal">—</span>
+  </div>
+</div>
+
+<!-- 03 INFRAÇÕES REGISTRADAS -->
+<div class="section">
+  <div class="sec-head">
+    <span class="sec-icon">⚠️</span>
+    <span class="sec-label">Infrações e Observações</span>
+    <span class="sec-num">03 / 05</span>
+  </div>
+  <div class="sec-body">
+    <div class="infraction-bar" id="infractionBar" style="display:none">
+      <span class="inf-count" id="infCount">0</span>
+      <div class="inf-label"><strong id="infStatus">Infrações detectadas</strong>Técnico sem uso de EPI obrigatório</div>
+    </div>
+    <div class="field" style="margin-bottom:10px">
+      <label>Descrição Detalhada das Infrações</label>
+      <textarea id="observacoes" maxlength="3000" placeholder="Descreva detalhadamente quais EPIs estavam ausentes, as condições encontradas, riscos identificados e demais ocorrências relevantes..."></textarea>
+    </div>
+    <div class="char-c"><span id="cObs">0</span> / 3000</div>
+    <div class="field" style="margin-top:10px">
+      <label>Providência Tomada</label>
+      <select id="providencia">
+        <option value="">Selecione...</option>
+        <option>Advertência verbal — técnico orientado no local</option>
+        <option>Serviço interrompido até regularização dos EPIs</option>
+        <option>Notificação formal encaminhada à empresa</option>
+        <option>Registro de ocorrência para setor de segurança</option>
+        <option>Técnico afastado da atividade de risco</option>
+        <option>Outro</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- 04 FOTOS -->
+<div class="section">
+  <div class="sec-head">
+    <span class="sec-icon">📷</span>
+    <span class="sec-label">Evidências Fotográficas</span>
+    <span class="sec-num">04 / 05</span>
+  </div>
+  <div class="sec-body">
+    <div class="photo-meta">Fotos: <span id="fCount">0</span> / 15 &nbsp;·&nbsp; <span id="geoLabel" style="color:#666">geoloc: aguardando</span></div>
+    <div class="cam-btns">
+      <button class="act-btn" onclick="abrirCameraNativa()">📸 Tirar Foto da Infração</button>
+      <button class="act-btn" onclick="abrirGaleria()">🖼️ Importar da Galeria</button>
+    </div>
+    <input type="file" id="cameraNativa" accept="image/*" capture="environment" style="display:none">
+    <input type="file" id="galeria" accept="image/*" multiple style="display:none">
+    <canvas id="canvas" style="display:none"></canvas>
+    <div id="preview"></div>
+  </div>
+</div>
+
+<!-- 05 ASSINATURA -->
+<div class="section">
+  <div class="sec-head">
+    <span class="sec-icon">✍️</span>
+    <span class="sec-label">Assinatura do Fiscal</span>
+    <span class="sec-num">05 / 05</span>
+  </div>
+  <div class="sec-body">
+    <div style="position:relative">
+      <canvas id="sigCanvas" style="width:100%;height:150px;background:#fff;border-radius:6px;border:1px solid #2C2C2C;cursor:crosshair;display:block;touch-action:none"></canvas>
+      <div id="sigOkOverlay" style="display:none;position:absolute;inset:0;background:rgba(34,197,94,.12);border-radius:6px;border:2px solid #22c55e;align-items:center;justify-content:center;flex-direction:column;gap:5px">
+        <span style="font-size:32px">✅</span>
+        <span style="font-size:10px;color:#22c55e;letter-spacing:1px;font-family:monospace">ASSINATURA CONFIRMADA</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:9px">
+      <button id="btnConfirmarSig" onclick="confirmarAssinatura()" disabled style="background:#E50012;color:#fff;border:none;padding:9px 16px;border-radius:6px;cursor:not-allowed;font-size:11px;font-weight:700;flex:1;opacity:.4;font-family:monospace;letter-spacing:1px;text-transform:uppercase">✓ Confirmar Assinatura</button>
+      <button id="btnLimparSig" onclick="limparAssinatura()" style="background:#181818;color:#666;border:1px solid #2C2C2C;padding:9px 16px;border-radius:6px;cursor:pointer;font-size:11px;font-family:monospace;letter-spacing:1px;text-transform:uppercase">✕ Limpar</button>
+    </div>
+    <div style="font-size:10px;color:#444;margin-top:6px;font-family:monospace" id="sigHint">Assine acima com o dedo ou mouse para validar o relatório</div>
+  </div>
+</div>
+
+<button onclick="gerarPDF()" class="main-btn" id="btnPDF">
+  📄 Gerar Relatório de Infração PDF
+</button>
+
+</div>
+
+<div id="visualizador">
+  <button id="fecharVis" onclick="fecharVis()">✕</button>
+  <img id="imgVis">
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const epis = [
+  { nome: "Capacete de segurança (CA certificado)", risco: "ALTO" },
+  { nome: "Óculos de proteção", risco: "ALTO" },
+  { nome: "Luvas isolantes / de segurança", risco: "ALTO" },
+  { nome: "Calçado de segurança (botina com biqueira)", risco: "ALTO" },
+  { nome: "Cinto de segurança tipo paraquedista (altura)", risco: "ALTO" },
+  { nome: "Trava-queda / talabarte (trabalho em altura)", risco: "ALTO" },
+  { nome: "Colete de sinalização (refletivo)", risco: "MED" },
+  { nome: "Protetor auricular (ambientes ruidosos)", risco: "MED" },
+  { nome: "Manga protetora / manga de raspa", risco: "MED" },
+  { nome: "Protetor solar (trabalho externo)", risco: "MED" },
+  { nome: "Uniforme da empresa em bom estado", risco: "LOW" },
+  { nome: "Crachá / identificação visível", risco: "LOW" },
+];
+
+const sevClass = { ALTO:"sev-alto", MED:"sev-med", LOW:"sev-low" };
+const sevLabel = { ALTO:"ALTO", MED:"MÉDIO", LOW:"BAIXO" };
+
+const tabela = document.getElementById("tabela");
+epis.forEach((e, i) => {
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+    <td>${String(i+1).padStart(2,"0")}</td>
+    <td>${e.nome}</td>
+    <td style="text-align:center"><span class="epi-severity ${sevClass[e.risco]}">${sevLabel[e.risco]}</span></td>
+    <td>
+      <div class="btn-group">
+        <button class="status-btn" data-v="Sim" onclick="sel(this,${i})">✓ Usando</button>
+        <button class="status-btn" data-v="Não" onclick="sel(this,${i})">✗ Ausente</button>
+        <button class="status-btn" data-v="N/A" onclick="sel(this,${i})">N/A</button>
+      </div>
+    </td>`;
+  tabela.appendChild(tr);
+});
+
+function sel(btn, i) {
+  const row = tabela.rows[i];
+  row.querySelectorAll(".status-btn").forEach(b => b.className = "status-btn");
+  const v = btn.dataset.v;
+  btn.classList.add(v==="Sim"?"s-ok":v==="Não"?"s-no":"s-na");
+  row.className = v==="Sim"?"r-ok":v==="Não"?"r-no":"";
+  score();
+}
+
+function score() {
+  let ok=0, no=0, na=0;
+  tabela.querySelectorAll("tr").forEach(tr => {
+    if(tr.querySelector(".s-ok")) ok++;
+    else if(tr.querySelector(".s-no")) no++;
+    else if(tr.querySelector(".s-na")) na++;
+  });
+  const total = ok+no;
+  const pills = document.getElementById("pills");
+  if(total>0||na>0){
+    pills.style.display="flex";
+    document.getElementById("pOk").textContent=✓ ${ok} Em uso;
+    document.getElementById("pNo").textContent=✗ ${no} Ausente;
+    document.getElementById("pNa").textContent=– ${na} N/A;
+  }
+  const fill = document.getElementById("sFill");
+  const val  = document.getElementById("sVal");
+  if(!total){fill.style.width="0%";val.textContent="—";return;}
+  const pct = Math.round((ok/total)*100);
+  fill.style.width = pct+"%";
+  const clr = pct>=80?"#22c55e":pct>=50?"#f59e0b":"#ef4444";
+  fill.style.background = clr;
+  val.textContent = pct+"%"; val.style.color = clr;
+
+  const bar = document.getElementById("infractionBar");
+  if(no>0){
+    bar.style.display="flex";
+    document.getElementById("infCount").textContent = no;
+    document.getElementById("infStatus").textContent = no===1?"1 infração detectada":${no} infrações detectadas;
+  } else {
+    bar.style.display = "none";
+  }
+}
+
+document.getElementById("observacoes").addEventListener("input",function(){
+  document.getElementById("cObs").textContent=this.value.length;
+});
+
+let enderecoFoto = "", geoCoords = null;
+
+function setGeo(state, txt) {
+  document.getElementById("geoDot").className = "geo-dot "+state;
+  document.getElementById("geoTxt").textContent = txt;
+  const gl = document.getElementById("geoLabel");
+  gl.textContent = "geoloc: "+(state==="ok"?"ativo ✓":state==="err"?"erro":"aguardando");
+  gl.style.color = state==="ok"?"#22c55e":state==="err"?"#f87171":"#666";
+}
+
+function ativarGeo() { buscarGeo(); }
+
+function buscarGeo() {
+  if(!navigator.geolocation){setGeo("err","Geolocalização não suportada");return;}
+  setGeo("pulse","Obtendo localização...");
+  const btn = document.getElementById("btnAtivargeo");
+  if(btn){btn.textContent="⏳ Buscando...";btn.disabled=true;}
+  navigator.geolocation.getCurrentPosition(async pos => {
+    const lat = pos.coords.latitude.toFixed(6);
+    const lon = pos.coords.longitude.toFixed(6);
+    geoCoords = {lat,lon};
+    try {
+      const r = await fetch(https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json);
+      const d = await r.json();
+      enderecoFoto = d.display_name || ${lat}, ${lon};
+    } catch {
+      enderecoFoto = Lat:${lat} Lon:${lon};
+    }
+    const curto = enderecoFoto.length>60 ? enderecoFoto.substring(0,60)+"…" : enderecoFoto;
+    setGeo("ok", curto);
+    if(btn){btn.textContent="✅ GPS Ativo";btn.style.background="#22c55e";btn.disabled=true;}
+  }, (err) => {
+    const msg = err.code===1?"Permissão negada — libere o GPS":"Não foi possível obter localização";
+    setGeo("err", msg);
+    if(btn){btn.textContent="📍 Tentar Novamente";btn.disabled=false;}
+  });
+}
+
+let fotos = [];
+
+function abrirCameraNativa() {
+  if(fotos.length>=15){toast("Limite de 15 fotos atingido");return;}
+  buscarGeo();
+  document.getElementById("cameraNativa").click();
+}
+
+document.getElementById("cameraNativa").onchange = function(e) {
+  const file = e.target.files[0];
+  if(!file) return;
+  processarImagem(file, true);
+  e.target.value = "";
+};
+
+function abrirGaleria(){document.getElementById("galeria").click();}
+document.getElementById("galeria").onchange = function(e) {
+  const faltam = 15-fotos.length;
+  if(e.target.files.length>faltam) toast(Apenas ${faltam} foto(s) adicionada(s) — limite atingido);
+  Array.from(e.target.files).slice(0,faltam).forEach(f=>processarImagem(f,false));
+  e.target.value = "";
+};
+
+function processarImagem(file, comOverlay) {
+  if(fotos.length>=15) return;
+  const img = new Image();
+  const url = URL.createObjectURL(file);
+  img.onload = function() {
+    const canvas = document.getElementById("canvas");
+    canvas.width  = img.naturalWidth||img.width;
+    canvas.height = img.naturalHeight||img.height;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+
+    if(comOverlay) {
+      const agora = new Date();
+      const hora  = agora.toLocaleTimeString("pt-BR");
+      const data  = agora.toLocaleDateString("pt-BR");
+      const endCurto = enderecoFoto ? enderecoFoto.substring(0,70) : "Sem localização";
+      const overlayH = Math.round(canvas.height*0.1);
+      const fs = Math.round(overlayH*0.28);
+      ctx.fillStyle = "rgba(0,0,0,0.62)";
+      ctx.fillRect(0, canvas.height-overlayH, canvas.width, overlayH);
+      ctx.fillStyle = "#E50012";
+      ctx.fillRect(0, canvas.height-overlayH, Math.round(canvas.width*0.012), overlayH);
+      ctx.fillStyle = "#fff";
+      ctx.font = bold ${fs*1.1}px Arial;
+      ctx.fillText(hora, fs, canvas.height-overlayH*0.55);
+      ctx.font = ${fs}px Arial;
+      ctx.fillStyle = "#ddd";
+      ctx.fillText(data, fs, canvas.height-overlayH*0.28);
+      ctx.font = ${fs*0.85}px Arial;
+      ctx.fillStyle = "#aaa";
+      ctx.fillText("EPI INFRAC: "+endCurto, fs, canvas.height-overlayH*0.06);
+    }
+    fotos.push({
+      data: canvas.toDataURL("image/jpeg", 0.88),
+      endereco: comOverlay ? enderecoFoto : "",
+      hora: comOverlay ? new Date().toLocaleString("pt-BR") : ""
+    });
+    URL.revokeObjectURL(url);
+    mostrarPreview();
+    toast(Evidência ${fotos.length}/15 adicionada);
+  };
+  img.onerror = () => { toast("Erro ao carregar imagem"); URL.revokeObjectURL(url); };
+  img.src = url;
+}
+
+function mostrarPreview() {
+  const p = document.getElementById("preview");
+  p.innerHTML = "";
+  fotos.forEach((foto,i) => {
+    const d = document.createElement("div");
+    d.className = "foto-box";
+    const temGeo = foto.endereco && foto.endereco.length>0;
+    d.innerHTML = `
+      <img src="${foto.data}" onclick="abrirVis(${i})">
+      <span class="foto-label">${String(i+1).padStart(2,"0")}</span>
+      ${temGeo?<span class="foto-geo">📍</span>:""}
+      <button class="btn-del" onclick="delFoto(${i})">✕</button>`;
+    p.appendChild(d);
+  });
+  document.getElementById("fCount").textContent = fotos.length;
+}
+
+function delFoto(i){fotos.splice(i,1);mostrarPreview();}
+function abrirVis(i){document.getElementById("imgVis").src=fotos[i].data;document.getElementById("visualizador").classList.add("open");}
+function fecharVis(){document.getElementById("visualizador").classList.remove("open");}
+
+const sigCanvas = document.getElementById("sigCanvas");
+const sigCtx    = sigCanvas.getContext("2d");
+let signing=false, hasSig=false, sigConfirmada=false;
+
+function resizeSig(){
+  const rect = sigCanvas.getBoundingClientRect();
+  sigCanvas.width  = rect.width;
+  sigCanvas.height = 150;
+  sigCtx.strokeStyle="#000";sigCtx.lineWidth=2.5;sigCtx.lineCap="round";sigCtx.lineJoin="round";
+}
+resizeSig();
+window.addEventListener("resize",resizeSig);
+
+function getSigPos(e){
+  const r=sigCanvas.getBoundingClientRect();
+  const src=e.touches?e.touches[0]:e;
+  return{x:src.clientX-r.left,y:src.clientY-r.top};
+}
+sigCanvas.addEventListener("pointerdown",e=>{
+  if(sigConfirmada)return;signing=true;hasSig=true;
+  const p=getSigPos(e);sigCtx.beginPath();sigCtx.moveTo(p.x,p.y);e.preventDefault();
+});
+sigCanvas.addEventListener("pointermove",e=>{
+  if(!signing||sigConfirmada)return;
+  const p=getSigPos(e);sigCtx.lineTo(p.x,p.y);sigCtx.stroke();e.preventDefault();
+});
+sigCanvas.addEventListener("pointerup",()=>{
+  signing=false;sigCtx.beginPath();
+  if(hasSig&&!sigConfirmada){
+    const btn=document.getElementById("btnConfirmarSig");
+    btn.disabled=false;btn.style.opacity="1";btn.style.cursor="pointer";
+  }
+});
+sigCanvas.addEventListener("pointerleave",()=>{signing=false;sigCtx.beginPath();});
+
+function confirmarAssinatura(){
+  if(!hasSig)return;
+  sigConfirmada=true;
+  document.getElementById("sigOkOverlay").style.display="flex";
+  document.getElementById("btnConfirmarSig").style.display="none";
+  document.getElementById("btnLimparSig").textContent="↩ Refazer";
+  document.getElementById("sigHint").textContent="✓ Assinatura do fiscal confirmada";
+  document.getElementById("sigHint").style.color="#22c55e";
+}
+
+function limparAssinatura(){
+  sigCtx.clearRect(0,0,sigCanvas.width,sigCanvas.height);
+  hasSig=false;sigConfirmada=false;
+  document.getElementById("sigOkOverlay").style.display="none";
+  const btn=document.getElementById("btnConfirmarSig");
+  btn.style.display="";btn.disabled=true;btn.style.opacity=".4";btn.style.cursor="not-allowed";
+  document.getElementById("btnLimparSig").textContent="✕ Limpar";
+  document.getElementById("sigHint").textContent="Assine acima com o dedo ou mouse para validar o relatório";
+  document.getElementById("sigHint").style.color="";
+}
+
+function coletarStatus(){
+  const m={};
+  tabela.querySelectorAll("tr").forEach((tr,i)=>{
+    m[i]=tr.querySelector(".s-ok")?"Em uso":tr.querySelector(".s-no")?"AUSENTE":tr.querySelector(".s-na")?"N/A":"—";
+  });
+  return m;
+}
+
+function toast(msg){
+  const el=document.getElementById("toast");
+  el.textContent=msg;el.classList.add("show");
+  setTimeout(()=>el.classList.remove("show"),2800);
+}
+
+async function compartilharPDF(doc){
+  const tec=document.getElementById("tecnico").value.trim()||"Tecnico";
+  const dat=document.getElementById("data").value||"Data";
+  const nome=("EPI_"+tec+""+dat).replace(/\s+/g,"").replace(/[^a-zA-Z0-9_\-]/g,"_")+".pdf";
+  const blob=doc.output("blob");
+  const file=new File([blob],nome,{type:"application/pdf"});
+  if(navigator.canShare&&navigator.canShare({files:[file]})){
+    try{await navigator.share({title:"Relatório de Infração EPI",text:"Fiscalização de EPI",files:[file]});}
+    catch(e){if(e.name!=="AbortError")doc.save(nome);}
+  } else {doc.save(nome);}
+}
+
+async function gerarPDF(){
+  const btn=document.getElementById("btnPDF");
+  btn.style.opacity=".65";btn.textContent="⏳ Gerando PDF...";
+  await new Promise(r=>setTimeout(r,90));
+
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:"mm",format:"a4"});
+  const W=210,H=297,M=18,CW=W-M*2;
+  const RED=[229,0,18],BLACK=[30,30,30],GRAY=[100,100,100],LGRAY=[200,200,200],WHITE=[255,255,255];
+  const GRN=[0,130,60],ORG=[180,90,0],ERR=[180,0,0];
+
+  const sf=(...c)=>doc.setFillColor(...(c.length===1?c[0]:c));
+  const sd=(...c)=>doc.setDrawColor(...(c.length===1?c[0]:c));
+  const st=(...c)=>doc.setTextColor(...(c.length===1?c[0]:c));
+
+  const sm=coletarStatus();
+  const tecnico=document.getElementById("tecnico").value.trim()||"Não informado";
+  const matricula=document.getElementById("matricula").value.trim()||"—";
+  const fiscal=document.getElementById("fiscal").value.trim()||"Não informado";
+  const data=document.getElementById("data").value
+    ?new Date(document.getElementById("data").value+"T12:00:00").toLocaleDateString("pt-BR"):"Não informada";
+  const local=document.getElementById("local").value.trim()||"Não informado";
+  const tipoServico=document.getElementById("tipoServico").value||"Não informado";
+  const obsText=document.getElementById("observacoes").value.trim()||"Sem observações registradas.";
+  const providencia=document.getElementById("providencia").value||"Não informada";
+
+  let ok=0,no=0,na=0;
+  Object.values(sm).forEach(v=>{if(v==="Em uso")ok++;else if(v==="AUSENTE")no++;else if(v==="N/A")na++;});
+  const tot=ok+no;
+  const pct=tot>0?Math.round((ok/tot)*100):null;
+  const sClr=pct===null?GRAY:pct>=80?GRN:pct>=50?ORG:ERR;
+
+  let y=16;
+
+  // CABEÇALHO VERMELHO
+  sf(...RED);doc.rect(0,0,W,18,"F");
+  st(...WHITE);doc.setFont("helvetica","bold");doc.setFontSize(14);
+  doc.text("RELATÓRIO DE FISCALIZAÇÃO DE EPI",W/2,11,{align:"center"});
+  st(255,200,200);doc.setFont("helvetica","normal");doc.setFontSize(8);
+  doc.text("DOCUMENTO PROBATÓRIO DE INFRAÇÃO — USO INADEQUADO DE EQUIPAMENTOS DE PROTEÇÃO INDIVIDUAL",W/2,16,{align:"center"});
+  y=26;
+
+  // ALERTA se há infrações
+  if(no>0){
+    sf(255,240,240);sd(...RED);doc.setLineWidth(0.5);
+    doc.roundedRect(M,y,CW,14,2,2,"FD");
+    st(...ERR);doc.setFont("helvetica","bold");doc.setFontSize(11);
+    doc.text(⚠  TÉCNICO EM INFRAÇÃO: ${no} EPI(s) AUSENTE(s),M+5,y+9);
+    y+=20;
+  }
+
+  // DADOS
+  st(...BLACK);doc.setFont("helvetica","bold");doc.setFontSize(10);
+  doc.text("IDENTIFICAÇÃO",M,y);y+=5;
+  sd(...LGRAY);doc.setLineWidth(0.2);doc.line(M,y,W-M,y);y+=5;
+  doc.setFont("helvetica","normal");doc.setFontSize(10);
+  const campos=[
+    ["Técnico",tecnico],["Matrícula / ID",matricula],
+    ["Fiscal Responsável",fiscal],["Data",data],
+    ["Local / Obra",local],["Tipo de Serviço",tipoServico],
+  ];
+  campos.forEach(([l,v])=>{
+    st(...GRAY);doc.text(l+":",M,y);
+    st(...BLACK);doc.text(v,M+48,y);
+    y+=6;
+  });
+  // conformidade
+  st(...sClr);doc.setFont("helvetica","bold");doc.setFontSize(10);
+  doc.text("Conformidade Geral: "+(pct!==null?pct+"%":"—")+"   ("+ok+" Em uso · "+no+" Ausente · "+na+" N/A)",M,y);
+  y+=4;
+  sd(...LGRAY);doc.line(M,y,W-M,y);y+=8;
+
+  // CHECKLIST TABLE
+  doc.autoTable({
+    startY:y,
+    head:[["#","Equipamento de Proteção Individual","Risco","Status"]],
+    body:epis.map((e,i)=>[i+1,e.nome,sevLabel[e.risco],sm[i]||"—"]),
+    margin:{left:M,right:M},
+    headStyles:{fillColor:RED,textColor:WHITE,fontStyle:"bold",fontSize:9,cellPadding:2.5},
+    bodyStyles:{fillColor:WHITE,textColor:BLACK,fontSize:9,cellPadding:2.5},
+    alternateRowStyles:{fillColor:[248,248,248]},
+    columnStyles:{
+      0:{cellWidth:8,halign:"center"},
+      1:{cellWidth:"auto"},
+      2:{cellWidth:18,halign:"center"},
+      3:{cellWidth:24,halign:"center",fontStyle:"bold"},
+    },
+    didParseCell(d){
+      if(d.column.index===3&&d.section==="body"){
+        const v=d.cell.raw;
+        if(v==="Em uso")d.cell.styles.textColor=[0,130,60];
+        else if(v==="AUSENTE")d.cell.styles.textColor=[180,0,0];
+        else if(v==="N/A")d.cell.styles.textColor=[120,120,120];
+      }
+      if(d.column.index===2&&d.section==="body"){
+        const v=d.cell.raw;
+        if(v==="ALTO")d.cell.styles.textColor=[180,0,0];
+        else if(v==="MÉDIO")d.cell.styles.textColor=[140,70,0];
+        else d.cell.styles.textColor=[0,100,40];
+      }
+    },
+    tableLineColor:[200,200,200],tableLineWidth:0.2,
+  });
+  y=doc.lastAutoTable.finalY+8;
+
+  // OBSERVAÇÕES
+  if(y>H-45){doc.addPage();y=18;}
+  st(...BLACK);doc.setFont("helvetica","bold");doc.setFontSize(10);
+  doc.text("Descrição das Infrações:",M,y);y+=5;
+  const obsLines=doc.splitTextToSize(obsText,CW);
+  st(...BLACK);doc.setFont("helvetica","normal");doc.setFontSize(9);
+  doc.text(obsLines,M,y);y+=obsLines.length*4.5+5;
+
+  st(...BLACK);doc.setFont("helvetica","bold");doc.setFontSize(10);
+  doc.text("Providência Tomada:",M,y);y+=5;
+  st(...ERR);doc.setFont("helvetica","normal");doc.setFontSize(9);
+  doc.text(providencia,M,y);y+=10;
+
+  // FOTOS
+  if(fotos.length>0){
+    if(y>H-75){doc.addPage();y=18;}
+    st(...BLACK);doc.setFont("helvetica","bold");doc.setFontSize(10);
+    doc.text("Evidências Fotográficas:",M,y);y+=6;
+    const fw=80,fh=60,gap=10;
+    for(let i=0;i<fotos.length;i++){
+      const col=i%2;
+      if(col===0&&i>0)y+=fh+gap+(fotos[i-1].endereco?5:0);
+      if(y+fh>H-15){doc.addPage();y=18;}
+      const fx=col===0?M:M+fw+gap;
+      try{doc.addImage(fotos[i].data,"JPEG",fx,y,fw,fh,undefined,"FAST");}catch(e){}
+      if(fotos[i].endereco){
+        const geo=fotos[i].endereco.substring(0,60)+(fotos[i].endereco.length>60?"...":"");
+        st(...GRAY);doc.setFont("helvetica","normal");doc.setFontSize(6);
+        doc.text(" "+geo,fx,y+fh+4);
+      }
+    }
+    y+=fh+(fotos[fotos.length-1].endereco?9:3)+8;
+  }
+
+  // ASSINATURA
+  if(y>H-65){doc.addPage();y=18;}
+  sd(...LGRAY);doc.setLineWidth(0.3);doc.line(M,y,W-M,y);y+=8;
+  st(...BLACK);doc.setFont("helvetica","bold");doc.setFontSize(10);
+  doc.text("Assinatura do Fiscal Responsável",M,y);y+=6;
+  if(hasSig){
+    const sigData=sigCanvas.toDataURL("image/png");
+    try{doc.addImage(sigData,"PNG",M,y,CW,32);}catch(e){}
+    y+=34;
+  } else {
+    sd(...LGRAY);doc.rect(M,y,CW,32);
+    st(...GRAY);doc.setFont("helvetica","normal");doc.setFontSize(8);
+    doc.text("(Sem assinatura)",W/2,y+17,{align:"center"});y+=34;
+  }
+
+  if(y>H-35){doc.addPage();y=18;}
+  y+=4;
+  const sw=(CW-10)/2;
+  sd(...LGRAY);doc.line(M,y,M+sw,y);
+  doc.line(M+sw+10,y,M+sw*2+10,y);y+=5;
+  st(...BLACK);doc.setFont("helvetica","normal");doc.setFontSize(9);
+  doc.text(fiscal,M+sw/2,y,{align:"center"});
+  doc.text(tecnico,M+sw+10+sw/2,y,{align:"center"});y+=4;
+  st(...GRAY);doc.setFontSize(7);
+  doc.text("Fiscal Responsável",M+sw/2,y,{align:"center"});
+  doc.text("Técnico Autuado",M+sw+10+sw/2,y,{align:"center"});
+
+  // RODAPÉ
+  const pages=doc.internal.getNumberOfPages();
+  for(let pg=1;pg<=pages;pg++){
+    doc.setPage(pg);
+    sd(...LGRAY);doc.setLineWidth(0.2);doc.line(M,H-12,W-M,H-12);
+    st(...GRAY);doc.setFont("helvetica","normal");doc.setFontSize(7);
+    doc.text("Relatório de Fiscalização EPI · Gerado em "+new Date().toLocaleString("pt-BR"),M,H-7);
+    doc.text("Página "+pg+" de "+pages,W-M,H-7,{align:"right"});
+  }
+
+  btn.style.opacity="1";btn.textContent="📄 Gerar Relatório de Infração PDF";
+  await compartilharPDF(doc);
+  toast("PDF gerado com sucesso!");
+}
+</script>
 </body>
 </html>
